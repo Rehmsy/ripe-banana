@@ -6,7 +6,7 @@ const { checkOk } = request;
 
 function save(actor) {
     return request
-        .post('/api/actor')
+        .post('/api/actors')
         .send(actor)
         .then(checkOk)
         .then(({ body }) => body);
@@ -70,12 +70,12 @@ describe('Actors API', () => {
     });
 
     beforeEach(() => {
-        return save('actors', bill)
+        return save(bill)
             .then(data => billMurray = data);
     });
 
     beforeEach(() => {
-        return save('actors', chuck)
+        return save(chuck)
             .then(data => chuckNorris = data);
     });
 
@@ -113,7 +113,7 @@ describe('Actors API', () => {
             .get('/api/actors')
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, [chuckNorris, billMurray]);
+                assert.deepEqual(body, [billMurray, chuckNorris]);
             });
     });
 
@@ -127,7 +127,7 @@ describe('Actors API', () => {
             })
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, []);
+                assert.deepEqual(body, [billMurray]);
             });
     });
 });
