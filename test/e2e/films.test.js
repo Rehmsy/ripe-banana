@@ -20,6 +20,7 @@ describe('Films API', () => {
     let film; // film
     let foster; // actor
     let warner; // studio
+    //let crocker; //reviewer
     
     function saveStudio(studio) {
         return request
@@ -49,6 +50,22 @@ describe('Films API', () => {
                 foster = data;
             });
     });
+
+    // beforeEach(() => {
+    //     return request
+    //         .post('api/reviewers')
+    //         .send({
+    //             name: 'Betty Crocker', 
+    //             company: 'Pancake Hut'
+    //         })
+    //         .then(data => {
+    //             crocker = data;
+    //         });
+    // });
+
+    // it('saves a reviewer', () => {
+    //     assert.isOk(crocker._id);
+    // });
    
     //
     beforeEach(() => {

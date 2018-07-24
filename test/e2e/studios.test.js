@@ -82,9 +82,7 @@ describe('Studios API', () => {
         return request
             .get(`/api/studios/${studio._id}`)
             .then(({ body }) => {
-                delete body._v;
                 assert.deepEqual(body, (studio));
-
             });
     });
 
