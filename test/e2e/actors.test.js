@@ -4,23 +4,95 @@ const { dropCollection } = require('./db');
 
 const { checkOk } = request;
 
+function save(actor) {
+    return request
+        .post('/api/actor')
+        .send(actor)
+        .then(checkOk)
+        .then(({ body }) => body);
+}
+
+const makeSimple = (actor, films) => {
+    const simple = {
+        _id: actor._id,
+        name: actor.name,
+        dob: actor.dob,
+        pob: actor.pob
+    };
+
+    if(films) {
+        simple.films = [];
+        simple.films[0] = {
+            _id: films._id,
+            title: films.title,
+            released: films.released
+        };
+    }
+    return simple;
+};
+
+let chuckNorris;
+let billMurray;
+let WalkerTexasRanger;
+let KickPunchStudio;
+
+const KickPunch = {
+    name: 'Kick Punch Studio',
+    address: {
+        city: 'LA',
+        state: 'CA',
+        country: 'USA'
+    }
+};
+
+const chuck = {
+    name: 'Chuck Norris',
+    dob: new Date('1953-07-04'),
+    pob: 'Kyle, OK'
+};
+
+const bill = {
+    name: 'Bill Murray',
+    dob: new Date('1963-09-20'),
+    pob: 'Boston, MA'
+};
+
 describe('Actors API', () => {
+
     beforeEach(() => dropCollection('actors'));
 
-    function save(actor) {
-        return request
-            .post('/api/actors')
-            .send(actor)
-            .then(checkOk)
-            .then(({ body }) => body);
-    }
-
-    let chuckNorris;
     beforeEach(() => {
-        return save({ name: 'Chuck Norris' })
-            .then(data => {
-                chuckNorris = data;
-            });
+        return request
+            .post('/api/studios')
+            .send(KickPunch)
+            .then(checkOk)
+            .then(({ body }) => KickPunchStudio = body);
+    });
+
+    beforeEach(() => {
+        return save('actors', bill)
+            .then(data => billMurray = data);
+    });
+
+    beforeEach(() => {
+        return save('actors', chuck)
+            .then(data => chuckNorris = data);
+    });
+
+    beforeEach(() => {
+        return request  
+            .post('/api/films')
+            .send({
+                title: 'Walker Texas Ranger',
+                studio: KickPunchStudio._id,
+                released: 1999,
+                cast: [{
+                    role: 'Badass',
+                    actor: chuckNorris._id
+                }]
+            })
+            .then(checkOk)
+            .then(({ body })=> WalkerTexasRanger = body);
     });
 
     it('saves an Actor', () => {
@@ -30,18 +102,15 @@ describe('Actors API', () => {
     it('gets an actor by id', () => {
         return request
             .get(`/api/actors/${chuckNorris._id}`)
+            .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, chuckNorris);
+                assert.deepEqual(body, makeSimple(chuckNorris, WalkerTexasRanger));
             });
     });
 
     it('gets a list of actors', () => {
-        let billMurray;
-        return save({ name: 'Bill Murray' })
-            .then(_billMurray => {
-                billMurray = _billMurray;
-                return request.get('/api/actors');
-            })
+        return request
+            .get('/api/actors')
             .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body, [chuckNorris, billMurray]);
@@ -61,7 +130,4 @@ describe('Actors API', () => {
                 assert.deepEqual(body, []);
             });
     });
-
-
-
 });
