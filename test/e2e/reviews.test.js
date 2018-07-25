@@ -104,7 +104,7 @@ describe('Reviews API', () => {
 
     beforeEach(() => {
         return saveFilm({
-            name: 'Movie Film',
+            title: 'Movie Film',
             studio: studioCo._id,
             released: 1989,
             cast: [{
@@ -144,19 +144,27 @@ describe('Reviews API', () => {
             .then(checkOk)
             .then(({ body }) => {
                 body.forEach(r => {
-                    delete r._id;
-                    delete r.updated_at;
-                    delete r.created_at;
+                    delete r.reviewer._id;
+                    delete r.film._id;
+                    delete r.updatedAt;
+                    delete r.createdAt;
+                    delete r.__v;
                 });
 
                 reviewA = {
                     _id: reviewA._id,
                     rating: reviewA.rating,
-                    reviewer: makeSimple(reviewerSue),
+                    reviewer: {
+                        name: reviewerSue.name
+                    },
                     review: reviewA.review,
-                    film: makeSimple(movieFilm)
+                    film: {
+                        title: movieFilm.title
+                    } 
                 };
-                assert.deepEqual(body, reviewA);
+                console.log('BODY BODY BODD', body);
+                console.log('REVIEW HEEEEEY', reviewA);
+                assert.deepEqual(body[0], reviewA);
             });
     });
 });
